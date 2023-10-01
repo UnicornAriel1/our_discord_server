@@ -20,3 +20,12 @@
 # virtualenv
 
 venv/*
+
+# secrets
+op_service_account_token.txt
+# .env files
+*.env
+
+# virtualenv
+
+venv/*

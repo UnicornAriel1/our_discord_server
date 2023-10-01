@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import discord
 from discord.ext import commands, tasks
 from discord.utils import get
+from discord.utils import get
 
 from dotenv import load_dotenv
 
@@ -25,7 +26,7 @@ def convert_to_channel_name(event_name):
     return channel_name
 
 @bot.event
-async def on_scheduled_event_create(event):
+async def on_scheduled_event_create(event): 
     """ 
     When an event is created, create a text channel and add the event creator to it.
     requires Intents.guild_scheduled_events and manage_channels to be enabled

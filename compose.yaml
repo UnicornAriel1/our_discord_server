@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    secrets:
+      - op_service_account_token
+
+secrets:
+  op_service_account_token:
+    file: ./op_service_account_token.txt
