@@ -6,4 +6,4 @@ services:
 
 secrets:
   op_service_account_token:
-    file: ./op_service_account_token.txt
+    environment: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
