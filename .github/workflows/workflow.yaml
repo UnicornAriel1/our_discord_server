@@ -34,4 +34,4 @@ jobs:
       run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|registry.digitalocean.com/unicornariel1-continer-registry/our_discord_server:'${TAG}'|' $GITHUB_WORKSPACE/deploy.sh
     
     - name: Provision Droplet and deploy container
-      run: doctl compute droplet create "our-discord-server" --image docker-18-04 --size s-1vcpu-1gb --region sfo2 --user-data-file deploy.sh --wait
+      run: doctl compute droplet create "our-discord-server" --image docker-18-04 --size s-1vcpu-1gb --region sfo2 --ssh-keys ${{ secrets.SSH_PUBLIC_KEY_FINGERPRINT }} --user-data-file deploy.sh --wait
