@@ -15,4 +15,4 @@ ENV CHANNEL_ID="op://Personal Dev Vault/CHANNEL_ID/password"
 ENV INTENTS="op://Personal Dev Vault/INTENTS/password"
 ENV CHANNEL_CATEGORY="op://Personal Dev Vault/CHANNEL_CATEGORY/password"
 
-CMD export OP_SERVICE_ACCOUNT_TOKEN=$(cat run/secrets/op_service_account_token) && op run -- python ./main.py
+CMD op run -- python ./main.py
