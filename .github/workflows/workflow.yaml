@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Checkout main
+    - name: Checkout staging
       uses: actions/checkout@v2
 
     - name: Update SHA
