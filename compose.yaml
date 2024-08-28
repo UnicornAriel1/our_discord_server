@@ -3,3 +3,7 @@ services:
     build: .
     secrets:
       - op_service_account_token
+
+secrets:
+  op_service_account_token:
+    environment: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
