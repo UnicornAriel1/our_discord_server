@@ -15,4 +15,7 @@ ENV CHANNEL_ID="op://Personal Dev Vault/CHANNEL_ID/password"
 ENV INTENTS="op://Personal Dev Vault/INTENTS/password"
 ENV CHANNEL_CATEGORY="op://Personal Dev Vault/CHANNEL_CATEGORY/password"
 
+EXPOSE 80
+
 CMD op run -- python ./main.py
+
