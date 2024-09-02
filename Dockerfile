@@ -17,4 +17,5 @@ ENV CHANNEL_CATEGORY="op://Personal Dev Vault/CHANNEL_CATEGORY/password"
 
 EXPOSE 80
 
-CMD op run -- python ./main.py  
+CMD op run -- python ./main.py
+

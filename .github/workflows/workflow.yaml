@@ -32,3 +32,4 @@ jobs:
 
     - name: Push image to DigitalOcean Container Registry
       run: docker push registry.digitalocean.com/unicornariel1-container-registry/our_discord_server:latest
+  
