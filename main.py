@@ -17,7 +17,7 @@ intents = discord.Intents.all()
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(command_prefix ='?',intents=intents)
+bot = discord.Client(command_prefix ='?',intents=intents)
 
 
 def convert_to_channel_name(event_name):
