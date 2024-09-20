@@ -5,11 +5,6 @@ from datetime import datetime, timedelta
 import discord
 from discord.ext import commands, tasks
 from discord.utils import get
-from discord.utils import get
-
-from dotenv import load_dotenv
-
-load_dotenv()
 
 guild_id = int(os.getenv('GUILD_ID'))
 
