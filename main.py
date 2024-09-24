@@ -1,10 +1,16 @@
 import os
 import re
-from datetime import datetime, timedelta
+import datetime
+from datetime import timedelta
 
 import discord
 from discord.ext import commands, tasks
 from discord.utils import get
+
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 guild_id = int(os.getenv('GUILD_ID'))
 
@@ -12,8 +18,7 @@ intents = discord.Intents.all()
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(command_prefix ='?',intents=intents)
-
+bot = commands.Bot(command_prefix ='?',intents=intents)        
 
 def convert_to_channel_name(event_name):
     """ Helper function that takes a string name of an event and returns how it has to be formatted for a channel name"""
@@ -68,33 +73,23 @@ async def on_scheduled_event_user_add(event,user):
 
 @bot.command()
 async def get_guild_events(ctx):
-    #TODO add arguments for start date and number of days to list
-    
-    all_events = ctx.guild.scheduled_events
+    """Print the scheduled events for the next 7 days"""
 
-    event_ids = [event.id for event in ctx.guild.scheduled_events]
+    events = [ctx.guild.get_scheduled_event(id) for id in [event.id for event in ctx.guild.scheduled_events]]
 
-    events = [ctx.guild.get_scheduled_event(id) for id in event_ids]
+    date_range = [datetime.datetime.today().date()+timedelta(1) + datetime.timedelta(days=x) for x in range(7)]
 
-    print_date = datetime.today().date()+timedelta(1)
+    upcoming_events=[event.url for event in events if event.start_time.date() in date_range]
 
     message = []
 
-    message.append("##  BEHOLD!\n ## This week's events.. \n\n\n")
-    for day in range(7):
-
-        if print_date in [event.start_time.date() for event in events]:
-
-            formatted_date = print_date.strftime('%A %B %d')
-
-            message.append(f" \n### {formatted_date}")  
-
-            for event in events:
-                if event.start_time.date() == print_date:
-                    message.append(event.url)
-            
-        print_date = print_date+timedelta(1)
-
+    if len(upcoming_events) == 0:
+        message.append("No Events This Week!!!")
+    else:
+        message.append("##  BEHOLD!\n ## This week's events.. \n\n\n")
+        for event in upcoming_events:
+            message.append(event)
+    
     await ctx.send("\n".join([m for m in message]),suppress_embeds=True)
 
 bot.run(os.getenv('DISCORD_TOKEN'))
