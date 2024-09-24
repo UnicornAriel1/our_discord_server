@@ -20,8 +20,8 @@ jobs:
     - name: Build container image
       run: | 
         docker build \
-        -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.base_ref }}:$(echo $GITHUB_SHA | head -c7) \
-        -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.base_ref }}:latest .
+        -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:$(echo $GITHUB_SHA | head -c7) \
+        -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:latest .
 
     - name: Install doctl
       uses: digitalocean/action-doctl@v2
@@ -32,5 +32,5 @@ jobs:
       run: doctl registry login --expiry-seconds 600 -t ${{ secrets.DOCTL_API_TOKEN }}
 
     - name: Push image to DigitalOcean Container Registry
-      run: docker push registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.base_ref }}:latest
+      run: docker push registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:latest
  
