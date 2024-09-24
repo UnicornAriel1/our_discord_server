@@ -1,5 +1,0 @@
-services:
-  web:
-    build: .
-    secrets:
-      - op_service_account_token
