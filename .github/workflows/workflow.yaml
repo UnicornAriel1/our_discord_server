@@ -4,6 +4,9 @@ on:
       - main
       - staging
 
+env:
+  OP_VAULT: ${{ secrets.OP_VAULT }}
+
 jobs:
 
   build:
@@ -18,8 +21,8 @@ jobs:
       run: echo $GITHUB_SHA > $GITHUB_WORKSPACE/_meta
 
     - name: Build container image
-      run: | 
-        docker build \
+      run: |
+        docker build --build_arg OP_VAULT=$OP_VAULT \
         -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:$(echo $GITHUB_SHA | head -c7) \
         -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:latest .
 
