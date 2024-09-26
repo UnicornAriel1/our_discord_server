@@ -5,7 +5,7 @@ on:
       - staging
 
 env:
-  OP_VAULT: ${{ secrets.OP_VAULT }}
+  OP_VAULT: ${{ vars.OP_VAULT }}
 
 jobs:
 
