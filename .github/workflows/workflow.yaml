@@ -9,6 +9,7 @@ jobs:
   build:
     name: Build, push, and deploy
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
     steps:
 
     - name: Checkout branch
@@ -18,10 +19,12 @@ jobs:
       run: echo $GITHUB_SHA > $GITHUB_WORKSPACE/_meta
 
     - name: Build container image
-      run: | 
-        docker build \
+      run: |
+        docker build --build-arg OP_VAULT=$OP_VAULT \
         -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:$(echo $GITHUB_SHA | head -c7) \
         -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:latest .
+      env:
+        OP_VAULT: ${{ vars.OP_VAULT }}
 
     - name: Install doctl
       uses: digitalocean/action-doctl@v2
