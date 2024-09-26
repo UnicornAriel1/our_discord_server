@@ -22,7 +22,7 @@ jobs:
 
     - name: Build container image
       run: |
-        docker build --build_arg OP_VAULT=$OP_VAULT \
+        docker build --build-arg OP_VAULT=$OP_VAULT \
         -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:$(echo $GITHUB_SHA | head -c7) \
         -t registry.digitalocean.com/unicornariel1-container-registry/our_discord_server_${{ github.ref_name }}:latest .
 
