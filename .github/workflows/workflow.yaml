@@ -9,7 +9,7 @@ jobs:
   build:
     name: Build, push, and deploy
     runs-on: ubuntu-latest
-    environment: {{ github.ref_name }}
+    environment: ${{ github.ref_name }}
     steps:
 
     - name: Checkout branch
