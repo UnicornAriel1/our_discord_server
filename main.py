@@ -21,7 +21,7 @@ intents.message_content = True
 class MyBot(commands.Bot):
 
     async def load_cogs(self):
-        print(os.listdir('.extensions'))
+        print(os.listdir('./extensions'))
         print(os.listdir())
         for filename in os.listdir('./extensions'):
             if filename.endswith('.py'):
