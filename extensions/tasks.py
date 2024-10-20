@@ -9,7 +9,7 @@ utc = datetime.timezone.utc
 load_dotenv()
 
 # If no tzinfo is given then UTC is assumed.
-time = datetime.time(hour=20, minute=0, tzinfo=utc)
+time = datetime.time(hour=3, minute=0, tzinfo=utc)
 
 class Tasks(commands.Cog):
     def __init__(self, bot):
