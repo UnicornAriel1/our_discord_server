@@ -25,6 +25,17 @@ def convert_to_channel_name(event_name):
     channel_name = re.sub(r'[^a-z0-9\-]','',event_name.replace(' ','-').lower())
     return channel_name
 
+async def create_category_if_not_exists(category_name, guild):
+    """ Creates a channel category if it doesn't already exist"""
+    
+    existing_category=get(guild.categories, name=category_name)
+
+    if existing_category == None:
+        await guild.create_category(name=category_name)
+    else:
+        return None
+    
+
 @bot.event
 async def on_scheduled_event_create(event): 
     """ 
@@ -33,16 +44,24 @@ async def on_scheduled_event_create(event):
     """
     # requires Intents.guild_scheduled_events to be enabled
     # requires manage_channels
-    print("a new event has been created!")
+
     guild = event.guild
+    category_name = 'Events'
+
+    await create_category_if_not_exists(category_name,guild)
+
+    category = get(guild.categories, name=category_name)
+    print("category: ", category)
+
     overwrites = {
         bot.user: discord.PermissionOverwrite(read_messages=True,
     send_messages=True, read_message_history = True, view_channel=True),
         event.creator: discord.PermissionOverwrite(read_messages=True,
-    send_messages=True, read_message_history = True, view_channel=True)
+    send_messages=True, read_message_history = True, view_channel=True),
+        guild.default_role: discord.PermissionOverwrite(read_messages=False)
     }
-    category = get(guild.categories, name="Events")
-    await guild.create_text_channel(event.name,category=category)
+
+    await guild.create_text_channel(event.name,category=category,overwrites=overwrites)
     
  
 
@@ -57,8 +76,7 @@ async def on_scheduled_event_user_add(event,user):
 
     channel = get(guild.channels,name=channel_name)
 
-    if user in channel.members:
-        print("user already in channel")
+    if user in channel.members and not user.bot:
         return
     else:
         viewer_permissions = {
