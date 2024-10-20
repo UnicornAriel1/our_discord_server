@@ -22,10 +22,10 @@ class MyBot(commands.Bot):
 
     async def load_cogs(self):
         # print(os.listdir('./extensions'))
-        print(os.listdir())
-        for filename in os.listdir('./extensions'):
-            if filename.endswith('.py'):
-                await self.load_extension(f'extensions.{filename[:-3]}')
+        await print(os.listdir())
+        # for filename in os.listdir('./extensions'):
+        #     if filename.endswith('.py'):
+        #         await self.load_extension(f'extensions.{filename[:-3]}')
         
     async def setup_hook(self):
         await self.load_cogs()
