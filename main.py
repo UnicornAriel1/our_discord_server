@@ -18,7 +18,17 @@ intents = discord.Intents.all()
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(command_prefix ='?',intents=intents)        
+class MyBot(commands.Bot):
+
+    async def load_cogs(self):
+        for filename in os.listdir('./extensions'):
+            if filename.endswith('.py'):
+                await self.load_extension(f'extensions.{filename[:-3]}')
+        
+    async def setup_hook(self):
+        await self.load_cogs()
+
+bot = MyBot(command_prefix ='?',intents=intents)        
 
 def convert_to_channel_name(event_name):
     """ Helper function that takes a string name of an event and returns how it has to be formatted for a channel name"""
@@ -34,7 +44,6 @@ async def create_category_if_not_exists(category_name, guild):
         await guild.create_category(name=category_name)
     else:
         return None
-    
 
 @bot.event
 async def on_scheduled_event_create(event): 
@@ -88,27 +97,8 @@ async def on_scheduled_event_user_add(event,user):
 
         await channel.set_permissions(user, **viewer_permissions)
 
-
-@bot.command()
-async def get_guild_events(ctx):
-    """Print the scheduled events for the next 7 days"""
-
-    events = [ctx.guild.get_scheduled_event(id) for id in [event.id for event in ctx.guild.scheduled_events]]
-
-    date_range = [datetime.datetime.today().date()+timedelta(1) + datetime.timedelta(days=x) for x in range(7)]
-
-    upcoming_events=[event.url for event in events if event.start_time.date() in date_range]
-
-    message = []
-
-    if len(upcoming_events) == 0:
-        message.append("No Events This Week!!!")
-    else:
-        message.append("##  BEHOLD!\n ## This week's events.. \n\n\n")
-        for event in upcoming_events:
-            message.append(event)
-    
-    await ctx.send("\n".join([m for m in message]),suppress_embeds=True)
-
 bot.run(os.getenv('DISCORD_TOKEN'))
+
+
+
 
