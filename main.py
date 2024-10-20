@@ -3,11 +3,9 @@ import re
 import datetime
 from datetime import timedelta
 
-import asyncio
-
 import discord
 from discord.ext import commands, tasks
-from discord.utils import get, setup_logging
+from discord.utils import get
 
 
 from dotenv import load_dotenv
