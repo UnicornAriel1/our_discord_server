@@ -12,5 +12,6 @@ ARG OP_VAULT
 
 ENV DISCORD_TOKEN="op://${OP_VAULT}/DISCORD_TOKEN/password"
 ENV GUILD_ID="op://${OP_VAULT}/GUILD_ID/password"
+ENV CHANNEL_ID="op://${OP_VAULT}/CHANNEL_ID/password"
 
 CMD op run -- python ./main.py

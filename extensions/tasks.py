@@ -9,7 +9,7 @@ utc = datetime.timezone.utc
 load_dotenv()
 
 # If no tzinfo is given then UTC is assumed.
-time = datetime.time(hour=3, minute=0, tzinfo=utc)
+time = datetime.time(hour=16, minute=0, tzinfo=utc)
 
 class Tasks(commands.Cog):
     def __init__(self, bot):
@@ -29,7 +29,7 @@ class Tasks(commands.Cog):
         channel = self.bot.get_channel(int(os.getenv('CHANNEL_ID')))
         guild = self.bot.get_guild(int(os.getenv('GUILD_ID')))
 
-        if weekday != 6:
+        if weekday != 0:
             return # it is not monday (week day 0)
             # 0-6 -> monday -> sunday
         
