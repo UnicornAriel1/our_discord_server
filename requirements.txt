@@ -11,7 +11,10 @@ frozenlist==1.4.0
 idna==3.4
 load-dotenv==0.1.0
 multidict==6.0.4
+pi==0.1.2
+psycopg==3.2.3
 python-dotenv==1.0.0
 pytz==2023.3
+typing_extensions==4.12.2
 yarl==1.9.2
 zope.interface==6.0
