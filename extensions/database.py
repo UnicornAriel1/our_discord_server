@@ -16,12 +16,21 @@ class Database(commands.Cog):
     def get_conn(self):
         return psycopg.AsyncConnection.connect(self.db_uri)
 
-    async def execute_query(self,queries,*args,**kwargs):
+    async def execute_statement(self,statements,*args,**kwargs):
 
         async with await self.get_conn() as conn:
             async with conn.cursor() as cur:
-                for query in queries:
-                    await cur.execute(query,*args,**kwargs)
+                for statement in statements:
+                    await cur.execute(statement,*args,**kwargs)
+
+    async def get_query_results(self,query):
+        
+        async with await self.get_conn() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(query)
+                query_results = await cur.fetchall()
+                return query_results
+                   
 
     async def migrate_schema(self):
         
@@ -37,7 +46,7 @@ class Database(commands.Cog):
                 )
             """]
 
-        await self.execute_query(statements)
+        await self.execute_statement(statements)
                 
 async def setup(bot):
     await bot.add_cog(Database(bot))

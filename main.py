@@ -47,8 +47,8 @@ async def create_category_if_not_exists(category_name, guild):
 
 @bot.event
 async def on_scheduled_event_create(event): 
-    """ 
-    When an event is created, create a text channel and add the event creator to it.
+    """When an event is created create a text channel, add the event creator to it, 
+    and write a row to the database associating the channel and the event
     requires Intents.guild_scheduled_events and manage_channels to be enabled
     """
     # requires Intents.guild_scheduled_events to be enabled
@@ -57,11 +57,9 @@ async def on_scheduled_event_create(event):
     guild = event.guild
     category_name = 'Events'
 
-    
-
     await create_category_if_not_exists(category_name,guild)
 
-    category = get(guild.categories, name=category_name)
+    category = get(guild.categories, name='Events')
 
     overwrites = {
         bot.user: discord.PermissionOverwrite(read_messages=True,
@@ -70,8 +68,6 @@ async def on_scheduled_event_create(event):
     send_messages=True, read_message_history = True, view_channel=True),
         guild.default_role: discord.PermissionOverwrite(read_messages=False)
     }
-
-    # db_conn = self.bot.get_cog('Database')
 
     channel = await guild.create_text_channel(event.name,category=category,overwrites=overwrites)
 
@@ -83,8 +79,6 @@ async def on_scheduled_event_create(event):
                     "channel_id": channel.id,
                 }
 
-    print(event_data)
-
     insert_statement = ["""
         INSERT INTO discord_events.events (id, name, start_date, end_date, channel_id)
         VALUES (%(id)s, %(name)s, %(start_date)s, %(end_date)s, %(channel_id)s);
@@ -92,7 +86,7 @@ async def on_scheduled_event_create(event):
 
     db=bot.get_cog('Database')
 
-    await db.execute_query(insert_statement, event_data)
+    await db.execute_statement(insert_statement, event_data)
     
  
 
