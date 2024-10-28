@@ -53,7 +53,7 @@ class Tasks(commands.Cog):
         
         await channel.send("\n".join([m for m in message]),suppress_embeds=True)
     
-    @tasks.loop(seconds=5.0, count=1)
+    @tasks.loop(time=time)
     async def delete_past_events(self):
         """deletes events that have already happened"""
 
@@ -64,7 +64,7 @@ class Tasks(commands.Cog):
         past_event_channel_ids="""
             SELECT channel_id from discord_events.events where DATE_TRUNC('day',events.end_date) < DATE_TRUNC('day', current_timestamp); 
         """
-        
+
         if db is not None:
             query_results = await db.get_query_results(past_event_channel_ids)
             print(query_results)
