@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from discord.ext import commands, tasks
 
 import psycopg
+from psycopg.rows import dict_row
+
 import os
 
 class Database(commands.Cog):
@@ -17,23 +19,25 @@ class Database(commands.Cog):
         return psycopg.AsyncConnection.connect(self.db_uri)
 
     async def execute_statement(self,statements,*args,**kwargs):
+        """execute one or more database statements"""
 
         async with await self.get_conn() as conn:
             async with conn.cursor() as cur:
                 for statement in statements:
                     await cur.execute(statement,*args,**kwargs)
 
-    async def get_query_results(self,query):
-        
+    async def get_query_results(self,query,*args,**kwargs):
+        """return all results for a database query"""
+
         async with await self.get_conn() as conn:
-            async with conn.cursor() as cur:
-                await cur.execute(query)
+            async with conn.cursor(row_factory=dict_row) as cur:
+                await cur.execute(query,*args,**kwargs)
                 query_results = await cur.fetchall()
                 return query_results
-                   
 
     async def migrate_schema(self):
-        
+        """set up database objects for application"""
+
         statements=[
             "CREATE SCHEMA IF NOT EXISTS discord_events",
             """

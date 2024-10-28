@@ -7,12 +7,9 @@ import discord
 from discord.ext import commands, tasks
 from discord.utils import get
 
-
 from dotenv import load_dotenv
 
 load_dotenv()
-
-guild_id = int(os.getenv('GUILD_ID'))
 
 intents = discord.Intents.all()
 intents.members = True
@@ -51,25 +48,22 @@ async def on_scheduled_event_create(event):
     and write a row to the database associating the channel and the event
     requires Intents.guild_scheduled_events and manage_channels to be enabled
     """
-    # requires Intents.guild_scheduled_events to be enabled
-    # requires manage_channels
 
-    guild = event.guild
     category_name = 'Events'
 
-    await create_category_if_not_exists(category_name,guild)
+    await create_category_if_not_exists(category_name,event.guild)
 
-    category = get(guild.categories, name='Events')
+    category = get(event.guild.categories, name='Events')
 
     overwrites = {
         bot.user: discord.PermissionOverwrite(read_messages=True,
     send_messages=True, read_message_history = True, view_channel=True),
         event.creator: discord.PermissionOverwrite(read_messages=True,
     send_messages=True, read_message_history = True, view_channel=True),
-        guild.default_role: discord.PermissionOverwrite(read_messages=False)
+        event.guild.default_role: discord.PermissionOverwrite(read_messages=False)
     }
 
-    channel = await guild.create_text_channel(event.name,category=category,overwrites=overwrites)
+    channel = await event.guild.create_text_channel(event.name,category=category,overwrites=overwrites)
 
     event_data = {  
                     "id": event.id,
@@ -96,10 +90,11 @@ async def on_scheduled_event_user_add(event,user):
     When a user is added to the event, add the user to the event's text channel.
     """
 
-    guild = event.guild
-    channel_name = convert_to_channel_name(event.name)
+    db=bot.get_cog('Database')
 
-    channel = get(guild.channels,name=channel_name)
+    channel_id = await db.get_query_results("SELECT channel_id FROM discord_events.events WHERE id = (%s)",(event.id,))
+
+    channel = await event.guild.fetch_channel(channel_id[0]["channel_id"])
 
     if user in channel.members and not user.bot:
         return

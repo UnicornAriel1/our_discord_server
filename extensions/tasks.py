@@ -53,38 +53,36 @@ class Tasks(commands.Cog):
         
         await channel.send("\n".join([m for m in message]),suppress_embeds=True)
     
-    @tasks.loop(time=time)
+    @tasks.loop(seconds=5.0, count=1)
     async def delete_past_events(self):
         """deletes events that have already happened"""
 
-        try:
-            await self.bot.load_extension('extensions.database')
-        except Exception as e:
-            print(f'**`ERROR:`** {type(e).__name__} - {e}')
-        else:
-            print('**`SUCCESSFULLY LOADED EXTENSION`**')
+        await self.bot.load_extension('extensions.database')
 
         db=self.bot.get_cog('Database')
 
         past_event_channel_ids="""
             SELECT channel_id from discord_events.events where DATE_TRUNC('day',events.end_date) < DATE_TRUNC('day', current_timestamp); 
         """
-
+        
         if db is not None:
             query_results = await db.get_query_results(past_event_channel_ids)
+            print(query_results)
 
         if len(query_results) > 0:
             for result in query_results:
                 try:
-                    channel = await self.bot.fetch_channel(int(result[0]))
+                    channel = await self.bot.fetch_channel(int(result["channel_id"]))
+                    print("fetch_channel: ",channel)
                 except (errors.NotFound):
-                    pass
-                try:
-                    await channel.delete()
-                except (errors.NotFound):
-                    pass
+                    channel = None
+                if channel is not None:
+                    try:
+                        await channel.delete()
+                    except (errors.NotFound):
+                        pass
 
-                await db.execute_statement(["DELETE FROM discord_events.events where channel_id = %s"],result)
+                await db.execute_statement(["DELETE FROM discord_events.events where channel_id = %s"],(result["channel_id"],))
     
 async def setup(bot):
     await bot.add_cog(Tasks(bot))
