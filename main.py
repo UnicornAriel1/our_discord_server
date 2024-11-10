@@ -94,19 +94,20 @@ async def on_scheduled_event_user_add(event,user):
 
     channel_id = await db.get_query_results("SELECT channel_id FROM discord_events.events WHERE id = (%s)",(event.id,))
 
-    channel = await event.guild.fetch_channel(channel_id[0]["channel_id"])
+    if channel_id is not None:
+        channel = await event.guild.fetch_channel(channel_id[0]["channel_id"])
 
-    if user in channel.members and not user.bot:
-        return
-    else:
-        viewer_permissions = {
-            "read_message_history":True,
-            "read_messages":True,
-            "send_messages":True,
-            "view_channel":True
-        }
+        if user in channel.members and not user.bot:
+            return
+        else:
+            viewer_permissions = {
+                "read_message_history":True,
+                "read_messages":True,
+                "send_messages":True,
+                "view_channel":True
+            }
 
-        await channel.set_permissions(user, **viewer_permissions)
+            await channel.set_permissions(user, **viewer_permissions)
 
 bot.run(os.getenv('DISCORD_TOKEN'))
 
