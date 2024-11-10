@@ -32,7 +32,7 @@ class Tasks(commands.Cog):
         channel = self.bot.get_channel(int(os.getenv('CHANNEL_ID')))
         guild = self.bot.get_guild(int(os.getenv('GUILD_ID')))
 
-        if weekday != 0:
+        if weekday != 6:
             return # it is not monday (week day 0)
             # 0-6 -> monday -> sunday
         
