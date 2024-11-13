@@ -7,12 +7,9 @@ import discord
 from discord.ext import commands, tasks
 from discord.utils import get
 
-
 from dotenv import load_dotenv
 
 load_dotenv()
-
-guild_id = int(os.getenv('GUILD_ID'))
 
 intents = discord.Intents.all()
 intents.members = True
@@ -47,30 +44,50 @@ async def create_category_if_not_exists(category_name, guild):
 
 @bot.event
 async def on_scheduled_event_create(event): 
-    """ 
-    When an event is created, create a text channel and add the event creator to it.
+    """When an event is created create a text channel, add the event creator to it, 
+    and write a row to the database associating the channel and the event
     requires Intents.guild_scheduled_events and manage_channels to be enabled
     """
-    # requires Intents.guild_scheduled_events to be enabled
-    # requires manage_channels
 
-    guild = event.guild
     category_name = 'Events'
+    events_channel = event.guild.get_channel(int(os.getenv('CHANNEL_ID')))
 
-    await create_category_if_not_exists(category_name,guild)
+    await create_category_if_not_exists(category_name,event.guild)
 
-    category = get(guild.categories, name=category_name)
-    print("category: ", category)
+    category = get(event.guild.categories, name='Events')
 
     overwrites = {
         bot.user: discord.PermissionOverwrite(read_messages=True,
     send_messages=True, read_message_history = True, view_channel=True),
         event.creator: discord.PermissionOverwrite(read_messages=True,
     send_messages=True, read_message_history = True, view_channel=True),
-        guild.default_role: discord.PermissionOverwrite(read_messages=False)
+        event.guild.default_role: discord.PermissionOverwrite(read_messages=False)
     }
 
-    await guild.create_text_channel(event.name,category=category,overwrites=overwrites)
+    channel = await event.guild.create_text_channel(event.name,category=category,overwrites=overwrites)
+
+    event_data = {
+                    "id": event.id,
+                    "name": event.name,
+                    "start_date": event.start_time,
+                    "end_date": event.end_time,
+                    "channel_id": channel.id,
+                }
+
+    insert_statement = ["""
+        INSERT INTO discord_events.events (id, name, start_date, end_date, channel_id)
+        VALUES (%(id)s, %(name)s, %(start_date)s, %(end_date)s, %(channel_id)s);
+        """]
+
+    db=bot.get_cog('Database')
+
+    announcement_message=[]
+    announcement_message.append("##  BEHOLD!\n ## A new event has emerged from the abyss.. \n\n\n")
+    announcement_message.append(event.url)
+
+    await db.execute_statement(insert_statement, event_data)
+
+    await events_channel.send("\n".join([m for m in announcement_message]))
     
  
 
@@ -80,22 +97,27 @@ async def on_scheduled_event_user_add(event,user):
     When a user is added to the event, add the user to the event's text channel.
     """
 
-    guild = event.guild
-    channel_name = convert_to_channel_name(event.name)
+    db=bot.get_cog('Database')
 
-    channel = get(guild.channels,name=channel_name)
+    channel_id = await db.get_query_results("SELECT channel_id FROM discord_events.events WHERE id = (%s)",(event.id,))
 
-    if user in channel.members and not user.bot:
-        return
+    if len(channel_id) > 0:
+        channel = await event.guild.fetch_channel(channel_id[0]["channel_id"])
+
+        if user in channel.members and not user.bot:
+            return
+        else:
+            viewer_permissions = {
+                "read_message_history":True,
+                "read_messages":True,
+                "send_messages":True,
+                "view_channel":True
+            }
+
+            await channel.set_permissions(user, **viewer_permissions)
+            return
     else:
-        viewer_permissions = {
-            "read_message_history":True,
-            "read_messages":True,
-            "send_messages":True,
-            "view_channel":True
-        }
-
-        await channel.set_permissions(user, **viewer_permissions)
+        return
 
 bot.run(os.getenv('DISCORD_TOKEN'))
 
