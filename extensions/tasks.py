@@ -29,7 +29,7 @@ class Tasks(commands.Cog):
         current_time = datetime.datetime.now()
         weekday = current_time.weekday()
 
-        channel = self.bot.get_channel(int(os.getenv('CHANNEL_ID')))
+        events_channel = self.bot.get_channel(int(os.getenv('CHANNEL_ID')))
         guild = self.bot.get_guild(int(os.getenv('GUILD_ID')))
 
         if weekday != 6:
@@ -51,7 +51,7 @@ class Tasks(commands.Cog):
             for event in upcoming_events:
                 message.append(event)
         
-        await channel.send("\n".join([m for m in message]),suppress_embeds=True)
+        await events_channel.send("\n".join([m for m in message]),suppress_embeds=True)
     
     @tasks.loop(time=time)
     async def delete_past_events(self):
@@ -60,6 +60,7 @@ class Tasks(commands.Cog):
         await self.bot.load_extension('extensions.database')
 
         db=self.bot.get_cog('Database')
+        print(db)
 
         past_event_channel_ids="""
             SELECT channel_id from discord_events.events where DATE_TRUNC('day',events.end_date) < DATE_TRUNC('day', current_timestamp); 
@@ -68,6 +69,8 @@ class Tasks(commands.Cog):
         if db is not None:
             query_results = await db.get_query_results(past_event_channel_ids)
             print(query_results)
+        else:
+            return
 
         if len(query_results) > 0:
             for result in query_results:
@@ -83,6 +86,8 @@ class Tasks(commands.Cog):
                         pass
 
                 await db.execute_statement(["DELETE FROM discord_events.events where channel_id = %s"],(result["channel_id"],))
+        else:
+            return
     
 async def setup(bot):
     await bot.add_cog(Tasks(bot))

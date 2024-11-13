@@ -50,6 +50,7 @@ async def on_scheduled_event_create(event):
     """
 
     category_name = 'Events'
+    events_channel = event.guild.get_channel(int(os.getenv('CHANNEL_ID')))
 
     await create_category_if_not_exists(category_name,event.guild)
 
@@ -80,7 +81,13 @@ async def on_scheduled_event_create(event):
 
     db=bot.get_cog('Database')
 
+    announcement_message=[]
+    announcement_message.append("##  BEHOLD!\n ## A new event has emerged from the abyss.. \n\n\n")
+    announcement_message.append(event.url)
+
     await db.execute_statement(insert_statement, event_data)
+
+    await events_channel.send("\n".join([m for m in announcement_message]))
     
  
 
