@@ -65,7 +65,7 @@ async def on_scheduled_event_create(event):
 
     channel = await event.guild.create_text_channel(event.name,category=category,overwrites=overwrites)
 
-    event_data = {  
+    event_data = {
                     "id": event.id,
                     "name": event.name,
                     "start_date": event.start_time,
@@ -94,7 +94,7 @@ async def on_scheduled_event_user_add(event,user):
 
     channel_id = await db.get_query_results("SELECT channel_id FROM discord_events.events WHERE id = (%s)",(event.id,))
 
-    if channel_id is not None:
+    if len(channel_id) > 0:
         channel = await event.guild.fetch_channel(channel_id[0]["channel_id"])
 
         if user in channel.members and not user.bot:
@@ -108,6 +108,9 @@ async def on_scheduled_event_user_add(event,user):
             }
 
             await channel.set_permissions(user, **viewer_permissions)
+            return
+    else:
+        return
 
 bot.run(os.getenv('DISCORD_TOKEN'))
 
