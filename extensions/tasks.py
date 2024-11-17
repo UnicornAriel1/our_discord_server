@@ -79,6 +79,9 @@ class Tasks(commands.Cog):
                         await channel.delete()
                     except (errors.NotFound):
                         pass
+        
+        await db.execute_statement(["DELETE FROM discord_events.events where channel_id = %s"],(result["channel_id"],))
+        
         else:
             return
     
