@@ -2,6 +2,7 @@ import os
 import re
 import datetime
 from datetime import timedelta
+import logging
 
 import discord
 from discord.ext import commands, tasks
@@ -16,6 +17,10 @@ intents.members = True
 intents.message_content = True
 
 class MyBot(commands.Bot):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger=logging.getLogger('discord')
 
     async def load_cogs(self):
         for filename in os.listdir('./extensions'):
@@ -119,7 +124,7 @@ async def on_scheduled_event_user_add(event,user):
     else:
         return
 
-bot.run(os.getenv('DISCORD_TOKEN'))
+bot.run(os.getenv('DISCORD_TOKEN'),log_level=logging.INFO)
 
 
 
