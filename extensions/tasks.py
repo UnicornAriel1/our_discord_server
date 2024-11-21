@@ -55,12 +55,9 @@ class Tasks(commands.Cog):
     
     @tasks.loop(time=time)
     async def delete_past_events(self):
-        """deletes events that have already happened"""
-
-        await self.bot.load_extension('extensions.database')
-
-        db=self.bot.get_cog('Database')
-        print(db)
+        """deletes events that have already happened"""     
+        
+        db=self.bot.get_cog("Database")
 
         past_event_channel_ids="""
             SELECT channel_id from discord_events.events where DATE_TRUNC('day',events.end_date) < DATE_TRUNC('day', current_timestamp); 
@@ -68,7 +65,6 @@ class Tasks(commands.Cog):
 
         if db is not None:
             query_results = await db.get_query_results(past_event_channel_ids)
-            print(query_results)
         else:
             return
 
@@ -76,7 +72,6 @@ class Tasks(commands.Cog):
             for result in query_results:
                 try:
                     channel = await self.bot.fetch_channel(int(result["channel_id"]))
-                    print("fetch_channel: ",channel)
                 except (errors.NotFound):
                     channel = None
                 if channel is not None:
@@ -84,10 +79,16 @@ class Tasks(commands.Cog):
                         await channel.delete()
                     except (errors.NotFound):
                         pass
-
+        
                 await db.execute_statement(["DELETE FROM discord_events.events where channel_id = %s"],(result["channel_id"],))
+
         else:
             return
+    
+    @delete_past_events.before_loop
+    async def before_delete_pas_events(self):
+        """Bot needs to be set up before running this task"""
+        await self.bot.wait_until_ready()
     
 async def setup(bot):
     await bot.add_cog(Tasks(bot))
